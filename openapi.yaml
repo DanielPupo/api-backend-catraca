@@ -1,0 +1,212 @@
+openapi: 3.0.0
+info:
+  title: API Sistema Academia
+  description: API para gerenciamento de alunos e controle de acesso via catraca
+  version: "1.0.0"
+  contact:
+    name: Daniel Pupo e João Guilherme
+
+servers:
+  - url: http://localhost:5000
+    description: Servidor local
+
+paths:
+  /:
+    get:
+      summary: Rota de boas-vindas
+      responses:
+        "200":
+          description: Informações da API
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  api:
+                    type: string
+                  version:
+                    type: string
+                  Authors:
+                    type: string
+
+  /login:
+    post:
+      summary: Login do administrador
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - usuario
+                - senha
+              properties:
+                usuario:
+                  type: string
+                senha:
+                  type: string
+      responses:
+        "200":
+          description: Login realizado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  token:
+                    type: string
+        "400":
+          description: Dados não enviados
+        "401":
+          description: Credenciais inválidas
+
+  /catraca:
+    post:
+      summary: Verificar acesso na catraca (rota pública)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - cpf
+              properties:
+                cpf:
+                  type: string
+      responses:
+        "200":
+          description: Aluno encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cpf:
+                    type: string
+                  nome:
+                    type: string
+                  status:
+                    type: boolean
+        "404":
+          description: Aluno não encontrado
+        "400":
+          description: CPF não enviado
+        "500":
+          description: Erro interno
+
+  /alunos:
+    get:
+      summary: Listar todos os alunos
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Lista de alunos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    cpf:
+                      type: string
+                    nome:
+                      type: string
+                    status:
+                      type: boolean
+                    doc_id:
+                      type: string
+        "401":
+          description: Não autorizado
+
+    post:
+      summary: Criar novo aluno
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - cpf
+                - nome
+              properties:
+                cpf:
+                  type: string
+                nome:
+                  type: string
+                status:
+                  type: boolean
+                  default: true
+      responses:
+        "201":
+          description: Aluno criado
+        "400":
+          description: Dados incompletos
+        "500":
+          description: Erro ao cadastrar
+
+  /alunos/{id}:
+    put:
+      summary: Atualizar aluno
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cpf:
+                  type: string
+                nome:
+                  type: string
+                status:
+                  type: boolean
+      responses:
+        "200":
+          description: Aluno atualizado
+        "404":
+          description: Aluno não encontrado
+        "500":
+          description: Erro na atualização
+
+    delete:
+      summary: Excluir aluno
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Aluno removido
+        "404":
+          description: Aluno não encontrado
+        "500":
+          description: Erro ao excluir
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
