@@ -57,13 +57,14 @@ def login():
         token = gerar_token(usuario)
         return jsonify({"message": "Login realizado!", "token": token}), 200
     
+    # Adicione este retorno caso o IF acima falhe:
     return jsonify({"error": "Usuário ou senha inválidos"}), 401
 
 # ========================================================================================================
 # ROTA PÚBLICA (USADA PELA CATRACA)
 # ========================================================================================================
 
-@app.route("/catraca", methods=['GET'])
+@app.route("/catraca", methods=['POST'])
 def verificar_catraca():
     dados = request.get_json()
     if not dados or "cpf" not in dados:
