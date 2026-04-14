@@ -63,7 +63,7 @@ def login():
 # ROTA PÚBLICA (USADA PELA CATRACA)
 # ========================================================================================================
 
-@app.route("/catraca", methods=['POST'])
+@app.route("/catraca", methods=['GET'])
 def verificar_catraca():
     dados = request.get_json()
     if not dados or "cpf" not in dados:
