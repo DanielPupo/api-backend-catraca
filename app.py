@@ -74,15 +74,22 @@ def verificar_catraca():
     try:
         docs = db.collection("cadastros").where("cpf", "==", cpf).limit(1).get()
         if not docs:
-            return jsonify({"status": "NÃO ENCONTRADO"}), 404
+            return jsonify({"mensagem": "Aluno não encontrado"}), 404
 
         aluno = docs[0].to_dict()
+        
+        # Lógica de bloqueio conforme a imagem
+        if aluno.get("status") == False:
+            return jsonify({
+                "status": "BLOQUEADO",
+                "mensagem": "Procure a secretaria da academia"
+            }), 200 # Retornamos 200 pois a consulta em si deu certo
+
         return jsonify({
-            "cpf": aluno.get("cpf"),
-            "nome": aluno.get("nome"),
-            "status": aluno.get("status")
+            "status": "LIBERADO",
+            "nome": aluno.get("nome")
         }), 200
-    except:
+    except Exception as e:
         return jsonify({"error": "Erro ao consultar catraca"}), 500
 
 # ========================================================================================================
