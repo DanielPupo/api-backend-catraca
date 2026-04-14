@@ -81,8 +81,7 @@ def verificar_catraca():
         # Lógica de bloqueio conforme a imagem
         if aluno.get("status") == False:
             return jsonify({
-                "status": "BLOQUEADO",
-                "mensagem": "Procure a secretaria da academia"
+                "status": "BLOQUEADO"
             }), 200 # Retornamos 200 pois a consulta em si deu certo
 
         return jsonify({
