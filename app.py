@@ -112,8 +112,15 @@ def criar_aluno():
     dados = request.get_json()
     if not dados or "cpf" not in dados or "nome" not in dados:
         return jsonify({"error": "Dados incompletos!"}), 400
+
+    cpf_novo = str(dados["cpf"])
     
     try:
+        existente = db.collection("cadastros").where("cpf", "==", cpf_novo).limit(1).get()
+        
+        if existente:
+            return jsonify({"error": "Este CPF já está cadastrado no sistema!"}), 409
+        
         # Lógica do Contador de ID (igual ao seu código de charadas)
         contador_ref = db.collection("contador").document("controle_id")
         contador_doc = contador_ref.get()
@@ -128,7 +135,8 @@ def criar_aluno():
             "status": dados.get("status", True)
         })
         return jsonify({"message": "Aluno cadastrado!", "id": novo_id}), 201
-    except:
+    except Exception as e:
+        print(f"Erro: {e}") 
         return jsonify({"error": "Falha ao cadastrar aluno!"}), 500
 
 @app.route("/alunos/<int:id>", methods=['PUT'])
