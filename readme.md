@@ -192,6 +192,8 @@ João Guilherme
 
 🔗 Frontend: https://administrativo-academia.vercel.app/
 
+🔗 Frontend: https://catraca-academia-six.vercel.app/
+
 🔗 Backend: https://api-backend-catraca.vercel.app
 
 💡 Sobre o Backend
