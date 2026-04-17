@@ -157,20 +157,21 @@ def editar_aluno(id):
         return jsonify({"error": "O CPF deve conter exatamente 11 dígitos numéricos!"}), 400
     
     try:
+        # Verifica se já existe outro usuário com o mesmo CPF
         existente = db.collection("cadastros").where("cpf", "==", cpf_limpo).limit(1).get()
-        
-        if existente:
-            return jsonify({"error": "Este CPF já está cadastrado!"}), 409
-        
         docs = db.collection("cadastros").where("id", "==", id).limit(1).get()
         if not docs:
             return jsonify({"error": "Aluno não encontrado!"}), 404
-        
-        doc_ref = db.collection("cadastros").document(docs[0].id)
+        doc_id_atual = docs[0].id
+        if existente:
+            # Se encontrou um usuário com o mesmo CPF, mas não é o mesmo que está sendo editado
+            if existente[0].id != doc_id_atual:
+                return jsonify({"error": "Este CPF já está cadastrado!"}), 409
+        doc_ref = db.collection("cadastros").document(doc_id_atual)
         doc_ref.update(dados)
         return jsonify({"message": "Aluno atualizado!"}), 200
-    except:
-        return jsonify({"error": "Falha na atualização!"}), 500
+    except Exception as e:
+        return jsonify({"error": f"Falha na atualização! {str(e)}"}), 500
 
 @app.route("/alunos/<int:id>", methods=['DELETE'])
 @token_obrigatorio
