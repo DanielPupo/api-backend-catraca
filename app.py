@@ -7,6 +7,7 @@ import os
 from dotenv import load_dotenv
 import json
 from flasgger import Swagger
+import re
 
 load_dotenv()
 
@@ -112,16 +113,22 @@ def criar_aluno():
     dados = request.get_json()
     if not dados or "cpf" not in dados or "nome" not in dados:
         return jsonify({"error": "Dados incompletos!"}), 400
-
-    cpf_novo = str(dados["cpf"])
     
+    # Remover caracteres do cadastro dos alunos
+    cpf_limpo = re.sub(r'\D', '', str(dados["cpf"]))
+
+    # 2. Validar o cpf com 11 dígitos
+    if len(cpf_limpo) != 11:
+        return jsonify({"error": "O CPF deve conter exatamente 11 dígitos numéricos!"}), 400
+
     try:
-        existente = db.collection("cadastros").where("cpf", "==", cpf_novo).limit(1).get()
+        # 3. Verificar se já há um CPF igual
+        existente = db.collection("cadastros").where("cpf", "==", cpf_limpo).limit(1).get()
         
         if existente:
-            return jsonify({"error": "Este CPF já está cadastrado no sistema!"}), 409
-        
-        # Lógica do Contador de ID (igual ao seu código de charadas)
+            return jsonify({"error": "Este CPF já está cadastrado!"}), 409
+
+        # Lógica do Contador de ID
         contador_ref = db.collection("contador").document("controle_id")
         contador_doc = contador_ref.get()
         ultimo_id = contador_doc.to_dict().get("ultimo_id")
@@ -130,13 +137,12 @@ def criar_aluno():
 
         db.collection("cadastros").add({
             "id": novo_id,
-            "cpf": str(dados["cpf"]),
+            "cpf": cpf_limpo, # Salva apenas os números
             "nome": dados["nome"],
             "status": dados.get("status", True)
         })
         return jsonify({"message": "Aluno cadastrado!", "id": novo_id}), 201
     except Exception as e:
-        print(f"Erro: {e}") 
         return jsonify({"error": "Falha ao cadastrar aluno!"}), 500
 
 @app.route("/alunos/<int:id>", methods=['PUT'])
