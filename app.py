@@ -126,7 +126,7 @@ def criar_aluno():
         existente = db.collection("cadastros").where("cpf", "==", cpf_limpo).limit(1).get()
         
         if existente:
-            return jsonify({"error": "Este CPF já está cadastrado!"}), 409
+            return jsonify({"message": "Este CPF já está cadastrado!"}), 409
 
         # Lógica do Contador de ID
         contador_ref = db.collection("contador").document("controle_id")
