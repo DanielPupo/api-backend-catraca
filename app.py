@@ -149,7 +149,19 @@ def criar_aluno():
 @token_obrigatorio
 def editar_aluno(id):
     dados = request.get_json()
+    
+    cpf_limpo = re.sub(r'\D', '', str(dados["cpf"]))
+
+    # 2. Validar o cpf com 11 dígitos
+    if len(cpf_limpo) != 11:
+        return jsonify({"error": "O CPF deve conter exatamente 11 dígitos numéricos!"}), 400
+    
     try:
+        existente = db.collection("cadastros").where("cpf", "==", cpf_limpo).limit(1).get()
+        
+        if existente:
+            return jsonify({"error": "Este CPF já está cadastrado!"}), 409
+        
         docs = db.collection("cadastros").where("id", "==", id).limit(1).get()
         if not docs:
             return jsonify({"error": "Aluno não encontrado!"}), 404
