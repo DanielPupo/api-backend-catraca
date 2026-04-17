@@ -141,7 +141,7 @@ def criar_aluno():
             "nome": dados["nome"],
             "status": dados.get("status", True)
         })
-        return jsonify({"message": "Aluno cadastrado!", "id": novo_id}), 201
+        return jsonify({"error": "Aluno cadastrado!", "id": novo_id}), 201
     except Exception as e:
         return jsonify({"error": "Falha ao cadastrar aluno!"}), 500
 
